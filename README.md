@@ -1,6 +1,6 @@
 # Overview
 
-## Pre-requisits
+## Prerequisites
 
 Requires Python 3 or above
 You should have a folder with CSV spectra and another with corresponding FITS files. By convention they should by named by object Id.
