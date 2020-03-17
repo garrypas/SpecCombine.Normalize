@@ -11,7 +11,10 @@ You should have a folder with CSV spectra and another with corresponding FITS fi
 2. Run this command against your folders
 
 ```
-python3 normalize.py --wavelength=2000 --csvdir="../../Project/Activity 4.5.1/csv/" --fitsdir="../../Project/Activity 4.5.1/fits/"
+python3 normalize.py \
+  --wavelength=2000 \
+  --csvdir="../../Project/Activity 4.5.1/csv/" \
+  --fitsdir="../../Project/Activity 4.5.1/fits/"
 ```
 
 CLI args
