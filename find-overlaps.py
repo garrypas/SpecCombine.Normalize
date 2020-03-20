@@ -53,5 +53,5 @@ if startOverlap >= endOverlap:
     print("No overlapping regions")
     exit()
 
-print("Overlap (emitted) starts at " + str(get_em(startOverlap, startOverlapZ)) + " and ends at " + str(get_em(endOverlap, endOverlapZ)) + " (z = " + str(endOverlapZ) +")" )
+print("Overlap (emitted) starts at " + str(get_em(startOverlap, startOverlapZ)) + " and ends at " + str(get_em(endOverlap, endOverlapZ)) )
 print("Overlap (observed) starts at " + str(startOverlap) + " and ends at " + str(endOverlap) )
