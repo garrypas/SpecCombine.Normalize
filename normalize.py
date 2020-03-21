@@ -1,11 +1,14 @@
 import sys
-wavelength=None
+import os
+import csv
+
+from astropy.io import fits
+from find_overlaps import find_overlaps
+
 csvdir=None
 fitsdir=None
 for a in sys.argv[1:]:
     keyvalue=a.split("=")
-    if(keyvalue[0]=="--wavelength"):
-        wavelength=float(keyvalue[1])
     if(keyvalue[0]=="--csvdir"):
         csvdir=keyvalue[1]
     if(keyvalue[0]=="--fitsdir"):
@@ -13,13 +16,12 @@ for a in sys.argv[1:]:
     if(keyvalue[0]=="--output"):
         output=keyvalue[1]
 
+overlaps = find_overlaps(csvdir, fitsdir)
 
 # Infer object ids from the files saved in the csv directory
-import os
 object_ids=list(map(lambda d:  d.replace(".csv", ""), os.listdir(csvdir)))
 
 # Gets redshifts from FITS files
-from astropy.io import fits
 results = {}
 for object_id in object_ids:
     hdulist = fits.open(fitsdir + object_id + ".fits")
@@ -31,46 +33,45 @@ for object_id in object_ids:
 def get_obs(emline, z):
     return emline*(1 + z)
 
-import csv
 for object_id in object_ids:
-    point_on_continuum=get_obs(wavelength, results[object_id]["z"])
     with open(csvdir + object_id + ".csv", newline='') as csvfile:
         linereader = csv.DictReader(csvfile)
-        point_on_continuum_found=False
         results[object_id]["objid"] = object_id
+        results[object_id]["flux"] = 0
+        results[object_id]["fluxcount"] = 0
         for line in linereader:
             wlen=float(line["Wavelength"])
             flux=float(line["Flux"])
+            if (wlen >= overlaps["startOverlap"] or wlen <= overlaps["endOverlap"]):
+                results[object_id]["fluxcount"] = results[object_id]["fluxcount"] + 1
+                results[object_id]["flux"] = results[object_id]["flux"] + flux
 
-            if(wlen >= point_on_continuum - 1.0 and wlen <= point_on_continuum + 1.0):
-                if(point_on_continuum_found == False or flux > results[object_id]["point_on_continuum"]):
-                    results[object_id]["point_on_continuum"] = flux
-                point_on_continuum_found=True                
-
+            results[object_id]["startwavelength"] = overlaps["startOverlap"]
+            results[object_id]["endwavelength"] = overlaps["endOverlap"]
     csvfile.close()
 
-# Find baseline (biggest value)
-biggest_point_on_continuum=0
 for object_id in object_ids:
-    if hasattr(results[object_id], "point_on_continuum") == False:
-        print("Error: The object " + object_id + " does not have a point around the wavelength " + str(wavelength))
-        exit(1)
-    point_on_continuum=results[object_id]["point_on_continuum"]
-    if point_on_continuum > biggest_point_on_continuum:
-        biggest_point_on_continuum = point_on_continuum
+    if results[object_id]["flux"] == 0:
+        print("Unable to normalise " + object_id + ". Maybe there was no overlap, or no flux on the overlap?")
+        exit()
+    results[object_id]["flux"] = results[object_id]["flux"] / results[object_id]["fluxcount"]
+
+# Find baseline (biggest value)
+baseline=0
+for object_id in object_ids:
+    if results[object_id]["flux"] > baseline:
+        baseline = results[object_id]["flux"]
 
 # normalisation values
 for object_id in object_ids:
-    results[object_id]["normalization"] = biggest_point_on_continuum / results[object_id]["point_on_continuum"]
+    results[object_id]["normalisation"] = baseline / results[object_id]["flux"]
 
 # print results
-if output == None:
-    for object_id in object_ids:
-        print(results[object_id]["objid"]," z = ", results[object_id]["z"], ",", ": normalization = ", results[object_id]["normalization"])
-else:
-    file=open(output + "parameters.csv", "w")
-    csvwriter = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONE)
-    csvwriter.writerow(["#SpecCombine.params"])
-    for object_id in object_ids:
-        csvwriter.writerow([ int(object_id), results[object_id]["z"], results[object_id]["normalization"] ])
-    file.close()
+for object_id in object_ids:
+    print(results[object_id])
+file=open(output + "parameters.csv", "w")
+csvwriter = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONE)
+csvwriter.writerow(["#SpecCombine.params"])
+for object_id in object_ids:
+    csvwriter.writerow([ int(object_id), results[object_id]["z"], results[object_id]["normalisation"] ])
+file.close()

@@ -10,6 +10,8 @@ You should have a folder with CSV spectra and another with corresponding FITS fi
 
 ## Normaliser
 
+It will find the overlapping wavelength range in the set of files you point it to, and generate a parameters.csv file with all of the other spectra normalised to a baseline spectra (the spectra with most intense flux density). This can be imported into SpecCombine.
+
 1. First run setup.sh (setup.bat on Windows) to setup your machine (requires pip3 to be available globally)
 
 2. Run this command against your folders
@@ -24,7 +26,6 @@ python3 normalize.py \
 
 CLI args
 ```
---wavelength: the point on the continuum you want to normalise to. In the example above I've selected 2000 Angstrom. Every object must have the wavelength you specify for this to work (mathcing is fuzzy so as long as it has one that is close it should be ok)
 --csvdir: where your CSV files live
 --fitsdir: where your fits files live
 --output: where you want the parameters.csv file to be outputed (directory must exist)
