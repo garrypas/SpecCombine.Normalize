@@ -18,7 +18,6 @@ It will find the overlapping wavelength range in the set of files you point it t
 
 ```
 python3 normalize.py \
-  --wavelength=2000 \
   --csvdir="../../Project/Activity 4.5.1/csv/" \
   --fitsdir="../../Project/Activity 4.5.1/fits/" \
   --output="./output-folder/"
