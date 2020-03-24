@@ -7,6 +7,25 @@ You should have a folder with CSV spectra and another with corresponding FITS fi
 
 ## Usage
 
+## Download
+
+Download CSV files and their corresponding FITS files
+
+Input CSV file must be the following columns:  
+bestobjid, mjd, plate,fiberid as defined in SpecObj schema
+
+```tsql
+SELECT bestobjid,mjd,plate,fiberid from SpecObj
+WHERE BestObjId IN
+(
+'1237657400804442207',
+'1237654601027616844'
+)
+```
+
+```
+python3 download.py --csvfile=../file.csv --csvout=../csv/ --fitsout=../fits/
+```
 
 ## Normaliser
 
