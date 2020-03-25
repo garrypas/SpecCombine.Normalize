@@ -10,7 +10,10 @@ python3 normalize.py \
   --csvdir="./csv/" \
   --fitsdir="./fits/" \
   --output="./" \
-  --allowOverlapOverride
+  --allowOverlapOverride \
+  --baseline=100
+
+python3 namefiles.py --fitsdir=./fits --fitsoutdir=./fits2 --parameters=./parameters.csv
 
 echo "😊  Done 😊"
-echo "parameters.csv file contains normalisation/redshift values"
+echo "parameters.csv file contains normalisation/redshift values. Files are named and added to fits2"

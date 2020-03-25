@@ -11,6 +11,7 @@ csvdir=None
 fitsdir=None
 output=None
 allowOverlapOverride=False
+baseline=None
 
 for a in sys.argv[1:]:
     keyvalue=a.split("=")
@@ -22,6 +23,8 @@ for a in sys.argv[1:]:
         output=keyvalue[1]
     if(keyvalue[0]=="--allowOverlapOverride"):
         allowOverlapOverride=True
+    if(keyvalue[0]=="--baseline"):
+        baseline=float(keyvalue[1])
 
 if csvdir.endswith(os.sep) == False:
     csvdir = csvdir + os.sep
@@ -75,14 +78,20 @@ for object_id in object_ids:
     results[object_id]["flux"] = results[object_id]["flux"] / results[object_id]["fluxcount"]
 
 # Find baseline (biggest value)
-baseline=0
+largest=0
 for object_id in object_ids:
-    if results[object_id]["flux"] > baseline:
-        baseline = results[object_id]["flux"]
+    if results[object_id]["flux"] > largest:
+        largest = results[object_id]["flux"]
 
 # normalisation values
 for object_id in object_ids:
-    results[object_id]["normalisation"] = baseline / results[object_id]["flux"]
+    results[object_id]["normalisation"] = largest / results[object_id]["flux"]
+
+if baseline != None:
+    print("baselining to " + str(baseline))
+    for object_id in object_ids:
+        results[object_id]["normalisation"] = baseline * results[object_id]["normalisation"]
+
 
 # print results
 for object_id in object_ids:

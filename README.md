@@ -40,7 +40,8 @@ python3 normalize.py \
   --csvdir="../../../Project/Activity 4.5.1/csv/" \
   --fitsdir="../../../Project/Activity 4.5.1/fits/" \
   --output="./" \
-  --allowOverlapOverride
+  --allowOverlapOverride \
+  --baseline=100
 ```
 
 CLI args
@@ -49,6 +50,7 @@ CLI args
 --fitsdir: where your fits files live
 --output: where you want the parameters.csv file to be outputed (directory must exist)
 --allowOverlapOverride: if you want to key in the wavelength range once the overlap has been determined
+--baseline: choose your own baseline
 ```
 
 Now when you import your FITS files in SpecCombine, just follow up by importing the parameters.csv file this script generates and it will fill in all of the normalization and redshift values for you.
