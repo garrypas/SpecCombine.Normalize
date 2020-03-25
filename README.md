@@ -90,3 +90,11 @@ csvfile=./file.csv download=1 bash process-all.sh
 --download: define if you want to download (a bit slow, don't if you don't need to).
 --csvfile: the CSV file containing the results of the query given in the Download section
 ```
+
+## Name files
+
+It generates file names with the normalisation factor and redshift included as per agreed naming convention
+
+```
+ python3 namefiles.py --fitsdir=./fits --fitsoutdir=./fits2 --parameters=./parameters.csv
+```
