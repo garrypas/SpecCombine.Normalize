@@ -37,9 +37,10 @@ It will find the overlapping wavelength range in the set of files you point it t
 
 ```
 python3 normalize.py \
-  --csvdir="../../Project/Activity 4.5.1/csv/" \
-  --fitsdir="../../Project/Activity 4.5.1/fits/" \
-  --output="./output-folder/"
+  --csvdir="../../../Project/Activity 4.5.1/csv/" \
+  --fitsdir="../../../Project/Activity 4.5.1/fits/" \
+  --output="./" \
+  --allowOverlapOverride
 ```
 
 CLI args
@@ -47,6 +48,7 @@ CLI args
 --csvdir: where your CSV files live
 --fitsdir: where your fits files live
 --output: where you want the parameters.csv file to be outputed (directory must exist)
+--allowOverlapOverride: if you want to key in the wavelength range once the overlap has been determined
 ```
 
 Now when you import your FITS files in SpecCombine, just follow up by importing the parameters.csv file this script generates and it will fill in all of the normalization and redshift values for you.
@@ -72,3 +74,19 @@ CLI args
 ```
 
 Now when you import your FITS files in SpecCombine, just follow up by importing the parameters.csv file this script generates and it will fill in all of the normalization and redshift values for you.
+
+## Process All
+
+```
+csvfile=./file.csv download=1 bash process-all.sh
+```
+
+1. Downloads all the CSV and FITS files based on the input  
+1. Gets overlaps  
+1. Normalises  
+1. Produces a file ready for SpecCombine  
+
+```
+--download: define if you want to download (a bit slow, don't if you don't need to).
+--csvfile: the CSV file containing the results of the query given in the Download section
+```

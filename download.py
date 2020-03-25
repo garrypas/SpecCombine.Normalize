@@ -1,13 +1,6 @@
 import sys
 import csv
-
-# Exmaple query
-# SELECT bestobjid,mjd,plate,fiberid from SpecObj
-# WHERE BestObjId IN
-# (
-# '1237657400804442207',
-# '1237654601027616844'
-# )
+import os
 
 csvfile=None
 csvOutputDir=None
@@ -23,6 +16,20 @@ for a in sys.argv[1:]:
 
 if csvfile == None:
     print("No CSV file defined")
+    exit()
+
+if csvOutputDir == None:
+    print("No CSV output directory defined")
+    exit()
+
+if csvOutputDir.endswith(os.sep) == False:
+    csvOutputDir = csvOutputDir + os.sep
+
+if fitsOutputDir.endswith(os.sep) == False:
+    fitsOutputDir = fitsOutputDir + os.sep
+
+if fitsOutputDir == None:
+    print("No FITS output directory defined")
     exit()
 
 def getCsvUrl(mjd, plate, fiberID):
@@ -78,7 +85,7 @@ with open(csvfile, newline='', ) as csvfile:
         fiberid = rowRes["fiberid"]
         bestobjid = rowRes["bestobjid"]
     
-        # csvUrl = getCsvUrl(mjd, plate, fiberid)
-        # downloadCSVFile(csvUrl, csvOutputDir + bestobjid + ".csv")
+        csvUrl = getCsvUrl(mjd, plate, fiberid)
+        downloadCSVFile(csvUrl, csvOutputDir + bestobjid + ".csv")
         fitsUrl = getFitsUrl(mjd, plate, fiberid)
         downloadFitsFile(fitsUrl, fitsOutputDir + bestobjid + ".fits")

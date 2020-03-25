@@ -4,9 +4,14 @@ import csv
 
 from astropy.io import fits
 from find_overlaps import find_overlaps
+from lib.get_obs import get_obs
+from lib.get_em import get_em
 
 csvdir=None
 fitsdir=None
+output=None
+allowOverlapOverride=False
+
 for a in sys.argv[1:]:
     keyvalue=a.split("=")
     if(keyvalue[0]=="--csvdir"):
@@ -15,8 +20,24 @@ for a in sys.argv[1:]:
         fitsdir=keyvalue[1]
     if(keyvalue[0]=="--output"):
         output=keyvalue[1]
+    if(keyvalue[0]=="--allowOverlapOverride"):
+        allowOverlapOverride=True
+
+if csvdir.endswith(os.sep) == False:
+    csvdir = csvdir + os.sep
+if fitsdir.endswith(os.sep) == False:
+    fitsdir = fitsdir + os.sep
 
 overlaps = find_overlaps(csvdir, fitsdir)
+
+if allowOverlapOverride == True:
+    print("Overlaps start at " + str(get_em(overlaps["startOverlap"], overlaps["startOverlapZ"])) + " and end at " + str(get_em(overlaps["endOverlap"], overlaps["endOverlapZ"])))
+    o=input("Enter start overlap (leave blank to keep as-is:")
+    if len(o) > 0:
+        overlaps["startOverlap"] = float(o)
+    e=input("Enter start overlap (leave blank to keep as-is:")
+    if len(e) > 0:
+        overlaps["endOverlap"] = float(e)
 
 # Infer object ids from the files saved in the csv directory
 object_ids=list(map(lambda d:  d.replace(".csv", ""), os.listdir(csvdir)))
@@ -29,9 +50,6 @@ for object_id in object_ids:
         "z": hdulist[2].data["Z"][0]
     }
     hdulist.close()
-
-def get_obs(emline, z):
-    return emline*(1 + z)
 
 for object_id in object_ids:
     with open(csvdir + object_id + ".csv", newline='') as csvfile:

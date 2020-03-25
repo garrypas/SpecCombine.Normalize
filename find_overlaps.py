@@ -2,8 +2,7 @@ import csv
 import os
 from astropy.io import fits
 
-def get_em(obs, z):
-    return round(obs / (1 + z), 2)
+from lib.get_em import get_em
 
 def find_overlaps(csvdir, fitsdir):
     # Infer object ids from the files saved in the csv directory
