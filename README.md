@@ -15,7 +15,7 @@ Input CSV file must be the following columns:
 bestobjid, mjd, plate,fiberid as defined in SpecObj schema
 
 ```tsql
-SELECT bestobjid,mjd,plate,fiberid from SpecObj
+SELECT bestobjid,mjd,plate,fiberid,run2d,survey from SpecObj
 WHERE BestObjId IN
 (
 '1237657400804442207',

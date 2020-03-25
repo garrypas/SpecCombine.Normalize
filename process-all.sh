@@ -1,6 +1,3 @@
-rm -rf csv
-rm -rf fits
-
 mkdir csv
 mkdir fits
 
@@ -14,3 +11,6 @@ python3 normalize.py \
   --fitsdir="./fits/" \
   --output="./" \
   --allowOverlapOverride
+
+echo "😊  Done 😊"
+echo "parameters.csv file contains normalisation/redshift values"
