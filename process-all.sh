@@ -15,5 +15,7 @@ python3 normalize.py \
 
 python3 namefiles.py --fitsdir=./fits --fitsoutdir=./fits2 --parameters=./parameters.csv
 
+bash zip.sh
+
 echo "😊  Done 😊"
 echo "parameters.csv file contains normalisation/redshift values. Files are named and added to fits2"

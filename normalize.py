@@ -35,10 +35,10 @@ overlaps = find_overlaps(csvdir, fitsdir)
 
 if allowOverlapOverride == True:
     print("Overlaps start at " + str(get_em(overlaps["startOverlap"], overlaps["startOverlapZ"])) + " and end at " + str(get_em(overlaps["endOverlap"], overlaps["endOverlapZ"])))
-    o=input("Enter start overlap (leave blank to keep as-is:")
+    o=input("Enter start overlap (leave blank to keep as-is):")
     if len(o) > 0:
         overlaps["startOverlap"] = float(o)
-    e=input("Enter start overlap (leave blank to keep as-is:")
+    e=input("Enter start overlap (leave blank to keep as-is):")
     if len(e) > 0:
         overlaps["endOverlap"] = float(e)
 
@@ -61,8 +61,8 @@ for object_id in object_ids:
         results[object_id]["flux"] = 0
         results[object_id]["fluxcount"] = 0
         for line in linereader:
-            wlen=float(line["Wavelength"])
-            flux=float(line["Flux"])
+            wlen=float(line["wavelength"])
+            flux=float(line["flux"])
             if (wlen >= overlaps["startOverlap"] or wlen <= overlaps["endOverlap"]):
                 results[object_id]["fluxcount"] = results[object_id]["fluxcount"] + 1
                 results[object_id]["flux"] = results[object_id]["flux"] + flux
@@ -90,7 +90,7 @@ for object_id in object_ids:
 if baseline != None:
     print("baselining to " + str(baseline))
     for object_id in object_ids:
-        results[object_id]["normalisation"] = baseline * results[object_id]["normalisation"]
+        results[object_id]["normalisation"] = baseline / results[object_id]["normalisation"]
 
 
 # print results
