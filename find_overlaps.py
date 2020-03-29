@@ -24,8 +24,8 @@ def find_overlaps(csvdir, fitsdir):
             file = []
             for row in csv.DictReader(csvfile):
                 file.append(row)
-            firstWavelength = round(float(file[0]["wavelength"]), 2)
-            lastWavelength = round(float(file[-1]["wavelength"]), 2)
+            firstWavelength = round(float(file[0]["Wavelength"]), 2)
+            lastWavelength = round(float(file[-1]["Wavelength"]), 2)
             if startOverlap == None or firstWavelength > startOverlap:
                 startOverlap = firstWavelength
                 startOverlapZ = round(float(results[object_id]["z"]), 2)

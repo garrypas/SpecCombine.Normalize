@@ -61,8 +61,8 @@ for object_id in object_ids:
         results[object_id]["flux"] = 0
         results[object_id]["fluxcount"] = 0
         for line in linereader:
-            wlen=float(line["wavelength"])
-            flux=float(line["flux"])
+            wlen=float(line["Wavelength"])
+            flux=float(line["Flux"])
             if (wlen >= overlaps["startOverlap"] or wlen <= overlaps["endOverlap"]):
                 results[object_id]["fluxcount"] = results[object_id]["fluxcount"] + 1
                 results[object_id]["flux"] = results[object_id]["flux"] + flux
