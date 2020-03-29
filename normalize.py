@@ -109,5 +109,6 @@ file=open(output + "parameters.csv", "w")
 csvwriter = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONE)
 csvwriter.writerow(["#SpecCombine.params"])
 for object_id in object_ids:
-    csvwriter.writerow([ int(object_id), results[object_id]["z"], results[object_id]["normalisation"] ])
+    filename = "R " + str(round(results[object_id]["z"], 2)).replace(".", "_", -1) + " N " + str(round(results[object_id]["normalisation"], 2)).replace(".", "_", -1) + " " + object_id
+    csvwriter.writerow([ filename, results[object_id]["z"], results[object_id]["normalisation"] ])
 file.close()

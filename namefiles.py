@@ -2,6 +2,7 @@
 import csv
 import os
 import sys
+import re
 from shutil import copy2
 from lib.specCombineCleanName import cleanForSpecCombine
 
@@ -44,8 +45,9 @@ with open(parametersFile, newline='') as file:
     for row in csvfile:
         if(row[0].startswith("#")):
             continue
+        object_id = re.search('([0-9]*$)',row[0]).group(0)
         rowRes = {
-            "object_id": row[0],
+            "object_id": object_id,
             "z": round(float(row[1]), nameRounding),
             "normalizationFactor": round(float(row[2]), nameRounding)
         }

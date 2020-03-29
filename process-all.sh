@@ -1,5 +1,6 @@
 mkdir csv
 mkdir fits
+rm -rf fits2/
 
 if [ "$download" != "" ] && [ "$download" != "0" ]
 then
