@@ -6,6 +6,7 @@ from astropy.io import fits
 from find_overlaps import find_overlaps
 from lib.get_obs import get_obs
 from lib.get_em import get_em
+from lib.InsensitiveDictReader import InsensitiveDictReader
 
 csvdir=None
 fitsdir=None
@@ -34,11 +35,11 @@ if fitsdir.endswith(os.sep) == False:
 overlaps = find_overlaps(csvdir, fitsdir)
 
 if allowOverlapOverride == True:
-    print("Overlaps start at " + str(get_em(overlaps["startOverlap"], overlaps["startOverlapZ"])) + " and end at " + str(get_em(overlaps["endOverlap"], overlaps["endOverlapZ"])))
-    o=input("Enter start overlap (leave blank to keep as-is):")
+    print("Overlaps start at " + str(overlaps["startOverlap"]) + " and end at " + str(overlaps["endOverlap"]))
+    o=input("Enter start overlap (em) (leave blank to keep as-is):")
     if len(o) > 0:
         overlaps["startOverlap"] = float(o)
-    e=input("Enter start overlap (leave blank to keep as-is):")
+    e=input("Enter start overlap (em) (leave blank to keep as-is):")
     if len(e) > 0:
         overlaps["endOverlap"] = float(e)
 
@@ -54,43 +55,51 @@ for object_id in object_ids:
     }
     hdulist.close()
 
+
 for object_id in object_ids:
     with open(csvdir + object_id + ".csv", newline='') as csvfile:
-        linereader = csv.DictReader(csvfile)
+        linereader = InsensitiveDictReader(csvfile)
         results[object_id]["objid"] = object_id
-        results[object_id]["flux"] = 0
-        results[object_id]["fluxcount"] = 0
+        results[object_id]["fluxtotal"] = 0.0
+        results[object_id]["fluxcount"] = 0.0
+        results[object_id]["startflux"] = None
+        results[object_id]["startObsWavelength"] = None
         for line in linereader:
-            wlen=float(line["Wavelength"])
-            flux=float(line["Flux"])
-            if (wlen >= overlaps["startOverlap"] or wlen <= overlaps["endOverlap"]):
-                results[object_id]["fluxcount"] = results[object_id]["fluxcount"] + 1
-                results[object_id]["flux"] = results[object_id]["flux"] + flux
+            wlen_em = get_em(float(line["wavelength"]), overlaps["redshifts"][object_id])
+            flux=float(line["flux"])
+            if (wlen_em >= overlaps["startOverlap"] and wlen_em <= overlaps["endOverlap"]):
 
+                results[object_id]["fluxcount"] = results[object_id]["fluxcount"] + 1.0
+                results[object_id]["fluxtotal"] = results[object_id]["fluxtotal"] + flux
+                if results[object_id]["startflux"] == None:
+                    results[object_id]["startflux"] = flux
+                if results[object_id]["startObsWavelength"] == None:
+                    results[object_id]["startObsWavelength"] = float(line["wavelength"])
+                results[object_id]["endflux"] = flux
             results[object_id]["startwavelength"] = overlaps["startOverlap"]
             results[object_id]["endwavelength"] = overlaps["endOverlap"]
     csvfile.close()
 
 for object_id in object_ids:
-    if results[object_id]["flux"] == 0:
+    if results[object_id]["fluxtotal"] == 0:
         print("Unable to normalise " + object_id + ". Maybe there was no overlap, or no flux on the overlap?")
         exit()
-    results[object_id]["flux"] = results[object_id]["flux"] / results[object_id]["fluxcount"]
+    results[object_id]["flux"] = results[object_id]["fluxtotal"] / results[object_id]["fluxcount"]
 
-# Find baseline (biggest value)
-largest=0
-for object_id in object_ids:
-    if results[object_id]["flux"] > largest:
-        largest = results[object_id]["flux"]
+if baseline == None:
+    # Find baseline (biggest value)
+    largest=0
+    for object_id in object_ids:
+        if results[object_id]["flux"] > largest:
+            largest = results[object_id]["flux"]
 
-# normalisation values
-for object_id in object_ids:
-    results[object_id]["normalisation"] = largest / results[object_id]["flux"]
-
-if baseline != None:
+    # normalisation values
+    for object_id in object_ids:
+        results[object_id]["normalisation"] = largest / results[object_id]["flux"]
+else:
     print("baselining to " + str(baseline))
     for object_id in object_ids:
-        results[object_id]["normalisation"] = baseline / results[object_id]["normalisation"]
+        results[object_id]["normalisation"] = baseline / results[object_id]["flux"]
 
 
 # print results

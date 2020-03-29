@@ -3,6 +3,7 @@ import os
 from astropy.io import fits
 
 from lib.get_em import get_em
+from lib.InsensitiveDictReader import InsensitiveDictReader
 
 def find_overlaps(csvdir, fitsdir):
     # Infer object ids from the files saved in the csv directory
@@ -17,27 +18,29 @@ def find_overlaps(csvdir, fitsdir):
 
     startOverlap=None
     endOverlap=None
-    startOverlapZ=None
-    endOverlapZ=None
+    z={}
     for object_id in object_ids:
         with open(csvdir + object_id + ".csv", newline='') as csvfile:
             file = []
-            for row in csv.DictReader(csvfile):
+            for row in InsensitiveDictReader(csvfile):
                 file.append(row)
-            firstWavelength = round(float(file[0]["Wavelength"]), 2)
-            lastWavelength = round(float(file[-1]["Wavelength"]), 2)
+
+            z[object_id] = float(results[object_id]["z"])
+            
+            firstWavelength = round(float(file[0]["wavelength"]), 2)
+            firstWavelength = get_em(firstWavelength, z[object_id])
+            lastWavelength = round(float(file[-1]["wavelength"]), 2)
+            lastWavelength = get_em(lastWavelength, z[object_id])
+
             if startOverlap == None or firstWavelength > startOverlap:
                 startOverlap = firstWavelength
-                startOverlapZ = round(float(results[object_id]["z"]), 2)
             if endOverlap == None or lastWavelength < endOverlap:
                 endOverlap = lastWavelength
-                endOverlapZ = round(float(results[object_id]["z"]), 2)
 
         csvfile.close()
 
     return {
         "startOverlap": startOverlap,
-        "startOverlapZ": startOverlapZ,
         "endOverlap": endOverlap,
-        "endOverlapZ": endOverlapZ
+        "redshifts": z
     }
