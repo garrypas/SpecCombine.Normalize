@@ -4,23 +4,31 @@ from astropy.io import fits
 
 from lib.get_em import get_em
 from lib.InsensitiveDictReader import InsensitiveDictReader
+from lib.get_object_id import get_object_id
 
 def find_overlaps(csvdir, fitsdir):
     # Infer object ids from the files saved in the csv directory
-    object_ids = list(map(lambda d: d.replace(".csv", ""), os.listdir(csvdir)))
+    csvFiles = list(map(lambda d: {
+        "filename": d,
+        "object_id": get_object_id(d.replace(".csv", ""))
+    }, list(map(lambda d: d.replace(".csv", ""), os.listdir(csvdir)))))
 
     # Gets redshifts from FITS files
     results = {}
-    for object_id in object_ids:
-        hdulist = fits.open(fitsdir + object_id + ".fits")
+    for csvFile in csvFiles:
+        filename = csvFile["filename"]
+        object_id = csvFile["object_id"]
+        hdulist = fits.open(fitsdir + filename + ".fits")
         results[object_id] = { "z": hdulist[2].data["Z"][0] }
         hdulist.close()
 
     startOverlap=None
     endOverlap=None
     z={}
-    for object_id in object_ids:
-        with open(csvdir + object_id + ".csv", newline='') as csvfile:
+    for csvFile in csvFiles:
+        filename = csvFile["filename"]
+        object_id = csvFile["object_id"]
+        with open(csvdir + filename + ".csv", newline='') as csvfile:
             file = []
             for row in InsensitiveDictReader(csvfile):
                 file.append(row)

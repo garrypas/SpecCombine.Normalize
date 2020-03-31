@@ -5,6 +5,7 @@ import sys
 import re
 from shutil import copy2
 from lib.specCombineCleanName import cleanForSpecCombine
+from lib.get_object_id import get_object_id 
 
 nameRounding = 2
 
@@ -39,22 +40,27 @@ if fitsoutdir.endswith(os.path.sep) == False:
 if os.path.exists(fitsoutdir) == False:
     os.mkdir(fitsoutdir)
 
-vals = []
+vals = {}
 with open(parametersFile, newline='') as file:
     csvfile = csv.reader(file, delimiter=',')
     for row in csvfile:
         if(row[0].startswith("#")):
             continue
-        object_id = re.search('([0-9]*$)',row[0]).group(0)
+        object_id = get_object_id(row[0])
         rowRes = {
-            "object_id": object_id,
             "z": round(float(row[1]), nameRounding),
             "normalizationFactor": round(float(row[2]), nameRounding)
         }
-        vals.append(rowRes)
+        vals[object_id] = rowRes
 file.close()
 
-for val in vals:
-    src = fitsdir + cleanForSpecCombine(val["object_id"]) + ".fits"
-    dest = fitsoutdir + "R " + cleanForSpecCombine(val["z"]) + " N " + cleanForSpecCombine(val["normalizationFactor"]) + " " + cleanForSpecCombine(val["object_id"]) + ".fits"
-    copy2(src, dest)
+for src in os.listdir(fitsdir):
+    object_id = get_object_id(src)
+    if (object_id in vals) == False:
+        print("File with ID " + object_id + " does not exist in the parameters file")
+        continue
+    val = vals[object_id]
+    dest = src
+    if dest.startswith("R ") == False:
+        dest = "R " + cleanForSpecCombine(val["z"]) + " N " + cleanForSpecCombine(val["normalizationFactor"]) + " " + dest
+    copy2(fitsdir + src, fitsoutdir + dest)

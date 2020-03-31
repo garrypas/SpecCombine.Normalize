@@ -1,12 +1,14 @@
 import sys
 import os
 import csv
+import re
 
 from astropy.io import fits
 from find_overlaps import find_overlaps
 from lib.get_obs import get_obs
 from lib.get_em import get_em
 from lib.InsensitiveDictReader import InsensitiveDictReader
+from lib.get_object_id import get_object_id
 
 csvdir=None
 fitsdir=None
@@ -44,20 +46,27 @@ if allowOverlapOverride == True:
         overlaps["endOverlap"] = float(e)
 
 # Infer object ids from the files saved in the csv directory
-object_ids=list(map(lambda d:  d.replace(".csv", ""), os.listdir(csvdir)))
-
+csvInputs = list(map(lambda filename: {
+    "object_id": get_object_id(filename),
+    "filename": csvdir + filename + ".csv"
+} , list(map(lambda d:  d.replace(".csv", ""), os.listdir(csvdir)))))
 # Gets redshifts from FITS files
 results = {}
-for object_id in object_ids:
-    hdulist = fits.open(fitsdir + object_id + ".fits")
+# In case filename is already named correctly
+for filename in os.listdir(fitsdir):
+    if filename.endswith(".fits") == False:
+        continue
+    hdulist = fits.open(fitsdir + filename)
+    object_id = get_object_id(filename)
     results[object_id] = {
         "z": hdulist[2].data["Z"][0]
     }
     hdulist.close()
 
-
-for object_id in object_ids:
-    with open(csvdir + object_id + ".csv", newline='') as csvfile:
+for csvInput in csvInputs:
+    object_id = csvInput["object_id"]
+    csvFilename = csvInput["filename"]
+    with open(csvFilename, newline='') as csvfile:
         linereader = InsensitiveDictReader(csvfile)
         results[object_id]["objid"] = object_id
         results[object_id]["fluxtotal"] = 0.0
@@ -80,7 +89,9 @@ for object_id in object_ids:
             results[object_id]["endwavelength"] = overlaps["endOverlap"]
     csvfile.close()
 
-for object_id in object_ids:
+
+for csvInput in csvInputs:
+    object_id = csvInput["object_id"]
     if results[object_id]["fluxtotal"] == 0:
         print("Unable to normalise " + object_id + ". Maybe there was no overlap, or no flux on the overlap?")
         exit()
@@ -89,26 +100,31 @@ for object_id in object_ids:
 if baseline == None:
     # Find baseline (biggest value)
     largest=0
-    for object_id in object_ids:
+    for csvInput in csvInputs:
+        object_id = csvInput["object_id"]
         if results[object_id]["flux"] > largest:
             largest = results[object_id]["flux"]
 
     # normalisation values
-    for object_id in object_ids:
+    for csvInput in csvInputs:
+        object_id = csvInput["object_id"]
         results[object_id]["normalisation"] = largest / results[object_id]["flux"]
 else:
     print("baselining to " + str(baseline))
-    for object_id in object_ids:
+    for csvInput in csvInputs:
+        object_id = csvInput["object_id"]
         results[object_id]["normalisation"] = baseline / results[object_id]["flux"]
 
-
 # print results
-for object_id in object_ids:
+for csvInput in csvInputs:
+    object_id = csvInput["object_id"]
     print(results[object_id])
 file=open(output + "parameters.csv", "w")
 csvwriter = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONE)
 csvwriter.writerow(["#SpecCombine.params"])
-for object_id in object_ids:
+
+for csvInput in csvInputs:
+    object_id = csvInput["object_id"]
     filename = "R " + str(round(results[object_id]["z"], 2)).replace(".", "_", -1) + " N " + str(round(results[object_id]["normalisation"], 2)).replace(".", "_", -1) + " " + object_id
     csvwriter.writerow([ filename, results[object_id]["z"], results[object_id]["normalisation"] ])
 file.close()

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 count=0
-zip=0
+zip=1
 cd fits2
 rm -rf ./*.zip
 for f in ./*; do
@@ -12,6 +12,6 @@ for f in ./*; do
         zip=$(($zip+1))
         count=0
     fi
-    zip ./fitsfiles${zip}.zip "$f"
+    zip "./Redshift (1.7-1.9) part ${zip}.zip" "$f"
 done
 cd ..
