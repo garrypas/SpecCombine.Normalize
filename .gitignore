@@ -4,3 +4,5 @@ csv
 fits*
 .DS_Store
 *.txt
+data
+test*

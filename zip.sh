@@ -12,6 +12,6 @@ for f in ./*; do
         zip=$(($zip+1))
         count=0
     fi
-    zip "./Redshift (1.7-1.9) part ${zip}.zip" "$f"
+    zip "./Redshift (2.5-2.7) part ${zip}.zip" "$f"
 done
 cd ..

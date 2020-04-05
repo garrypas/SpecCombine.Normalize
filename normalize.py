@@ -5,7 +5,6 @@ import re
 
 from astropy.io import fits
 from find_overlaps import find_overlaps
-from lib.get_obs import get_obs
 from lib.get_em import get_em
 from lib.InsensitiveDictReader import InsensitiveDictReader
 from lib.get_object_id import get_object_id
@@ -74,7 +73,7 @@ for csvInput in csvInputs:
         results[object_id]["startflux"] = None
         results[object_id]["startObsWavelength"] = None
         for line in linereader:
-            wlen_em = get_em(float(line["wavelength"]), overlaps["redshifts"][object_id])
+            wlen_em = get_em(float(line["wavelength"]), overlaps["redshifts"][object_id], 14)
             flux=float(line["flux"])
             if (wlen_em >= overlaps["startOverlap"] and wlen_em <= overlaps["endOverlap"]):
 

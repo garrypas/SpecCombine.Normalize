@@ -1,2 +1,2 @@
-def get_em(obs, z):
-    return round(obs / (1 + z), 2)
+def get_em(obs, z, rounding=2):
+    return round(obs / (1 + z), rounding)
