@@ -41,7 +41,7 @@ def getCsvUrl(mjd, plate, fiberID):
 def getFitsUrl(mjd, plate, fiberID, run2d, survey):
     fiberID = fiberID.zfill(4)
     plate = plate.zfill(4)
-    if survey == "segue2":
+    if survey.startswith("segue"):
         survey = "sdss"
 
     return "https://dr12.sdss3.org/sas/dr12/" + survey + "/spectro/redux/" + run2d + "/spectra/" + plate + "/spec-" + plate + "-" + mjd + "-"+ fiberID +".fits"
