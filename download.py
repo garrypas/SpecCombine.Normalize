@@ -34,10 +34,13 @@ if fitsOutputDir == None:
 
 def getCsvUrl(mjd, plate, fiberID):
     fiberID = fiberID.zfill(4)
+    plate = plate.zfill(4)
+
     return "http://dr12.sdss3.org/csvSpectrum?plateid=" + plate + "&mjd=" + mjd + "&fiber="+fiberID+"&reduction2d=v5_7_0"
 
 def getFitsUrl(mjd, plate, fiberID, run2d, survey):
-    fiberID = fiberID.zfill(4);
+    fiberID = fiberID.zfill(4)
+    plate = plate.zfill(4)
     if survey == "segue2":
         survey = "sdss"
 
@@ -96,6 +99,7 @@ with open(csvfile, newline='', ) as csvfile:
         bestobjid = rowRes["bestobjid"]
         run2d = rowRes["run2d"]
         survey = rowRes["survey"]
+        print("About to download data for " + bestobjid)
 
         csvUrl = getCsvUrl(mjd, plate, fiberid)
         downloadCSVFile(csvUrl, csvOutputDir + bestobjid + ".csv")
